@@ -1,6 +1,6 @@
 {
   "name": "@devquasarx9/jira-mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Production-oriented MCP server for legacy Jira Server and compatible self-hosted Jira instances",
   "type": "module",
   "bin": {
