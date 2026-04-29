@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "jira": {
+      "command": "jira-mcp-server",
+      "env": {
+        "JIRA_BASE_URL": "https://jira.example.com",
+        "JIRA_AUTH_MODE": "basic",
+        "JIRA_USERNAME": "your.username",
+        "JIRA_PASSWORD": "your-password",
+        "JIRA_READ_ONLY": "true",
+        "JIRA_ENABLE_WRITE_TOOLS": "false"
+      }
+    }
+  }
+}

@@ -3,79 +3,71 @@
 [![npm version](https://img.shields.io/npm/v/%40devquasarx9%2Fjira-mcp-server)](https://www.npmjs.com/package/@devquasarx9/jira-mcp-server)
 [![npm downloads](https://img.shields.io/npm/dm/%40devquasarx9%2Fjira-mcp-server)](https://www.npmjs.com/package/@devquasarx9/jira-mcp-server)
 
-Production-oriented MCP server for legacy Jira Server and compatible self-hosted Jira instances, designed around Jira Server/Data Center REST API v2 with Jira Server 7.7.1 as the primary target.
+MCP server for legacy Jira Server and Jira Data Center environments, built around Jira REST API v2 and tested with Jira Server 7.7.1 assumptions.
 
-npm package: [@devquasarx9/jira-mcp-server](https://www.npmjs.com/package/@devquasarx9/jira-mcp-server)
+Package: [@devquasarx9/jira-mcp-server](https://www.npmjs.com/package/@devquasarx9/jira-mcp-server)  
+Repository: [DevquasarX9/mcp-jira-legacy](https://github.com/DevquasarX9/mcp-jira-legacy)
+Works with: Claude Code, Claude Desktop, Codex, Cursor, and other MCP clients
+
+## Why this package exists
+
+Most Jira MCP integrations assume Jira Cloud, REST API v3, and `accountId`-based users. That is the wrong fit for many self-hosted installations.
+
+This server is designed for teams that need:
+
+- Jira Server or Jira Data Center compatibility
+- REST API v2 compatibility
+- legacy username and `name` user fields instead of Jira Cloud `accountId`
+- a local stdio MCP server for tools such as Claude Desktop, Cursor, and Codex
+- safe defaults, with write tools disabled unless explicitly enabled
+
+If your Jira instance is primarily Jira Cloud, this package is probably not the right choice.
 
 ## Compatibility
 
 - Primary target: Jira Server 7.7.1
-- API target: `/rest/api/2`
-- User identity model: legacy `username` / `name`, not Jira Cloud `accountId`
-- Agile API: optional, best-effort support through `/rest/agile/1.0` when Jira Software Agile endpoints are available
+- API family: `/rest/api/2`
+- User identity model: legacy `username` and `name`
+- Transport: MCP stdio server
+- Agile support: optional `/rest/agile/1.0` endpoints when Jira Software is installed and available
 
-This server is intentionally **not Cloud-first**. It avoids Jira Cloud REST API v3 assumptions, Atlassian account IDs, Cloud OAuth scope models, and Cloud-only privacy behavior.
+Non-goals:
 
-## Jira Cloud Warning
+- Jira Cloud-first behavior
+- `/rest/api/3`
+- `accountId`-based user workflows
+- Cloud OAuth scope assumptions
+- destructive issue deletion flows in v1
 
-This project is not designed primarily for Jira Cloud.
+## Capabilities
 
-Avoid these assumptions when using or extending the server:
+The server exposes structured Jira tools for:
 
-- Do not switch core issue/project/user calls to `/rest/api/3`
-- Do not require `accountId`
-- Do not require Atlassian Cloud OAuth 2 scopes
-- Do not assume Cloud-only document formats or app APIs
-- Do not assume Personal Access Tokens exist on Jira Server 7.7.1
-
-## Features
-
-Read tools:
-
-- instance info and auth validation
-- projects, components, versions, roles, statuses
-- issue search and issue reads
-- comments, transitions, worklogs, changelog, links
-- users and assignable users
+- instance info, auth validation, current user, and permissions
+- project listing and project metadata
+- JQL issue search and direct issue reads
+- comments, worklogs, links, transitions, and changelog reads
+- issue creation and updates when write mode is enabled
+- assignment, transitions, comments, labels, links, worklogs, and attachments when write mode is enabled
+- user search and assignable-user lookups
 - favourite filters and filter-backed issue search
-- optional boards/sprints/backlog/epics
-- higher-level summaries and heuristics for stale, blocked, overdue, sprint, standup, release notes, duplicates, and triage
+- optional Jira Agile board, sprint, backlog, and epic tools
+- higher-level read-only intelligence tools for stale work, blockers, overdue issues, standups, sprint summaries, release notes, and triage support
 
-Write tools, disabled by default:
+## Safety model
 
-- create issue
-- update issue
-- assign issue
-- add/update comment
-- transition issue
-- link issues
-- add/remove labels
-- add worklog
-- upload attachment
-
-## Tool Safety Model
+The package is intentionally conservative by default.
 
 - `JIRA_READ_ONLY=true` by default
 - `JIRA_ENABLE_WRITE_TOOLS=false` by default
 - `JIRA_ENABLE_DESTRUCTIVE_TOOLS=false` by default
-- project allow/deny lists are enforced on project-scoped and issue-scoped tools
-- JQL is scoped through allow/deny project clauses
-- request timeout, response size, and attachment size limits are enforced
-- credentials and auth headers are redacted from logs
-- write operations can be audited with `JIRA_AUDIT_LOG=true`
-- dry-run mode is available with `JIRA_DRY_RUN=true`
+- tool inputs are validated with `zod`
+- project allow/deny lists are enforced for scoped operations
+- credentials, auth headers, tokens, and cookies are redacted from logs
+- `JIRA_DRY_RUN=true` can preview write payloads without mutating Jira
+- `JIRA_AUDIT_LOG=true` can record write activity without exposing secrets
 
-## Installation
-
-The published npm package is `@devquasarx9/jira-mcp-server`. The installed command is `jira-mcp-server`.
-
-### Local development
-
-```bash
-npm install
-npm run build
-npm test
-```
+## Install
 
 ### Global install
 
@@ -89,16 +81,57 @@ npm install -g @devquasarx9/jira-mcp-server
 npx -y @devquasarx9/jira-mcp-server
 ```
 
-## Environment Variables
+### Local development
 
-Required:
+```bash
+npm install
+npm run build
+npm test
+```
+
+The installed CLI command is:
+
+```bash
+jira-mcp-server
+```
+
+## Quick start
+
+1. Copy `.env.example` to `.env`.
+2. Set your Jira base URL and authentication values.
+3. Keep read-only mode enabled first.
+4. Run the server from your MCP client.
+
+Minimal example:
+
+```env
+JIRA_BASE_URL=https://jira.example.com
+JIRA_AUTH_MODE=basic
+JIRA_USERNAME=your.username
+JIRA_PASSWORD=your-password
+JIRA_READ_ONLY=true
+JIRA_ENABLE_WRITE_TOOLS=false
+```
+
+## MCP client setup
+
+Example client configs live in the repository under [`examples/clients/`](https://github.com/DevquasarX9/mcp-jira-legacy/tree/main/examples/clients):
+
+- [Claude Code guide](https://github.com/DevquasarX9/mcp-jira-legacy/blob/main/examples/clients/claude_code.md)
+- [Claude Desktop JSON config](https://github.com/DevquasarX9/mcp-jira-legacy/blob/main/examples/clients/claude_desktop_config.json)
+- [Codex TOML config](https://github.com/DevquasarX9/mcp-jira-legacy/blob/main/examples/clients/codex-config.toml)
+- [Cursor MCP JSON config](https://github.com/DevquasarX9/mcp-jira-legacy/blob/main/examples/clients/cursor.mcp.json)
+
+## Environment variables
+
+### Required
 
 - `JIRA_BASE_URL`
 - `JIRA_AUTH_MODE`
 - `JIRA_USERNAME` for `basic` and `cookie`
 - `JIRA_PASSWORD` or `JIRA_TOKEN` depending on auth mode
 
-Optional:
+### Optional
 
 - `JIRA_STRICT_SSL=true`
 - `JIRA_CA_CERT_PATH`
@@ -118,21 +151,20 @@ Optional:
 - `JIRA_AUTH_HEADER_NAME`
 - `JIRA_AUTH_HEADER_VALUE`
 
-Authentication modes:
+### Authentication modes
 
-- `basic`
-- `bearer`
-- `cookie`
-- `header`
+- `basic`: username plus password, or username plus token where the Jira deployment supports it
+- `bearer`: for proxy or plugin-backed token scenarios
+- `cookie`: uses `/rest/auth/1/session`
+- `header`: for trusted reverse-proxy identity forwarding
 
 Notes:
 
-- On Jira Server 7.7.1, `basic` with username/password is the safest assumption.
-- `bearer` exists for reverse proxy or plugin-backed token scenarios, but Jira Server 7.7.1 does not natively provide modern PAT behavior.
-- `cookie` uses `/rest/auth/1/session` and requires username/password.
-- `header` is for enterprise reverse-proxy identity forwarding.
+- On Jira Server 7.7.1, `basic` with username/password is the safest default.
+- Jira Server 7.7.1 does not natively behave like modern Jira Cloud PAT-based authentication.
+- `bearer` is included for compatible self-hosted environments, not as a claim about stock Jira Server 7.7.1 features.
 
-## Authentication Examples
+## Authentication examples
 
 ### Basic auth
 
@@ -144,7 +176,7 @@ JIRA_PASSWORD=your-password
 JIRA_READ_ONLY=true
 ```
 
-### Cookie/session auth
+### Cookie auth
 
 ```env
 JIRA_BASE_URL=https://jira.example.com
@@ -154,7 +186,7 @@ JIRA_PASSWORD=your-password
 JIRA_READ_ONLY=true
 ```
 
-### Header auth behind reverse proxy
+### Header auth behind a reverse proxy
 
 ```env
 JIRA_BASE_URL=https://jira.example.com
@@ -164,9 +196,9 @@ JIRA_AUTH_HEADER_VALUE=service-account
 JIRA_READ_ONLY=true
 ```
 
-## MCP Client Configuration
+## MCP configuration
 
-### Generic MCP config
+### Generic MCP server config
 
 ```json
 {
@@ -177,7 +209,7 @@ JIRA_READ_ONLY=true
         "JIRA_BASE_URL": "https://jira.example.com",
         "JIRA_AUTH_MODE": "basic",
         "JIRA_USERNAME": "your.username",
-        "JIRA_PASSWORD": "your-password-or-token",
+        "JIRA_PASSWORD": "your-password",
         "JIRA_READ_ONLY": "true"
       }
     }
@@ -185,21 +217,55 @@ JIRA_READ_ONLY=true
 }
 ```
 
+### `npx` config
+
+```json
+{
+  "mcpServers": {
+    "jira": {
+      "command": "npx",
+      "args": ["-y", "@devquasarx9/jira-mcp-server"],
+      "env": {
+        "JIRA_BASE_URL": "https://jira.example.com",
+        "JIRA_AUTH_MODE": "basic",
+        "JIRA_USERNAME": "your.username",
+        "JIRA_PASSWORD": "your-password",
+        "JIRA_READ_ONLY": "true"
+      }
+    }
+  }
+}
+```
+
+### Codex TOML config
+
+```toml
+[mcp_servers.jira]
+command = "jira-mcp-server"
+
+[mcp_servers.jira.env]
+JIRA_BASE_URL = "https://jira.example.com"
+JIRA_AUTH_MODE = "basic"
+JIRA_USERNAME = "your.username"
+JIRA_PASSWORD = "your-password"
+JIRA_READ_ONLY = "true"
+```
+
 ### Claude Desktop
 
-Add the same server block to your Claude Desktop MCP configuration file and point `command` to `jira-mcp-server` or a local `node dist/index.js` wrapper.
+Add the same server block to your Claude Desktop MCP configuration and point `command` to either `jira-mcp-server` or a local `node dist/index.js`.
 
 ### Cursor
 
-Add the same server block to Cursor's MCP settings and keep the environment server-side. Start in read-only mode first.
+Add the same block in Cursor MCP settings. Keep credentials in the server environment and start in read-only mode.
 
 ### Codex
 
-Use the same generic MCP server block if your Codex client exposes MCP server configuration. Keep `JIRA_READ_ONLY=true` until you intentionally enable write mode.
+Use the same MCP server definition when Codex is configured to launch local MCP servers.
 
-## Available Tools
+## Tool catalog
 
-### Instance / auth
+### Instance and auth
 
 - `jira_get_server_info`
 - `jira_validate_auth`
@@ -215,7 +281,7 @@ Use the same generic MCP server block if your Codex client exposes MCP server co
 - `jira_get_project_roles`
 - `jira_get_project_statuses`
 
-### Issue read/search
+### Issues and search
 
 - `jira_search_issues`
 - `jira_get_issue`
@@ -225,7 +291,7 @@ Use the same generic MCP server block if your Codex client exposes MCP server co
 - `jira_get_issue_links`
 - `jira_get_issue_changelog`
 
-### Issue write
+### Issue write tools
 
 - `jira_create_issue`
 - `jira_update_issue`
@@ -276,80 +342,7 @@ Use the same generic MCP server block if your Codex client exposes MCP server co
 - `jira_find_duplicate_candidates`
 - `jira_triage_issue`
 
-## Read-only Mode
-
-Default mode is read-only. This blocks all write tools even if the tools are listed.
-
-```env
-JIRA_READ_ONLY=true
-JIRA_ENABLE_WRITE_TOOLS=false
-```
-
-## Write Mode
-
-Enable only when you intend to allow issue mutations.
-
-```env
-JIRA_READ_ONLY=false
-JIRA_ENABLE_WRITE_TOOLS=true
-```
-
-## Destructive Mode
-
-The current implementation does not expose destructive delete operations, but the separate flag is already wired so future destructive tools can remain opt-in.
-
-```env
-JIRA_ENABLE_DESTRUCTIVE_TOOLS=false
-```
-
-## Security Notes
-
-- Never log Authorization headers, passwords, tokens, or cookies
-- Treat Jira issue content and comments as untrusted input
-- Do not execute shell commands from tool input
-- Do not use `eval`
-- Keep write mode disabled unless actively needed
-- Prefer project allowlists in shared environments
-- Keep response and attachment limits conservative
-
-## SSL / Self-Signed Certificates
-
-For internal Jira instances with custom CAs:
-
-```env
-JIRA_STRICT_SSL=true
-JIRA_CA_CERT_PATH=/absolute/path/to/internal-ca.pem
-```
-
-If you must temporarily bypass strict validation for a lab environment:
-
-```env
-JIRA_STRICT_SSL=false
-```
-
-Do not disable SSL validation permanently in production.
-
-## Proxy Notes
-
-Header-based auth is intended for reverse proxies or SSO gateways that inject a trusted identity header. Only use this when the proxy boundary is controlled and audited.
-
-## Troubleshooting
-
-### Permission errors
-
-- Jira REST permissions are enforced server-side
-- project allow/deny lists may block a request before Jira sees it
-- issue transitions depend on workflow permissions and current status
-
-### Common Jira Server 7.7.1 issues
-
-- user endpoints expect legacy usernames, not `accountId`
-- PAT/bearer auth may not exist on stock Jira Server 7.7.1
-- Agile endpoints may not be installed or may be limited depending on Jira Software licensing
-- custom fields use `customfield_xxxxx`
-- attachment upload requires `X-Atlassian-Token: no-check`
-
-### JQL examples
+## Example JQL
 
 ```text
 project = ABC AND status = "Open" ORDER BY updated DESC
@@ -359,61 +352,43 @@ project = ABC AND duedate < now() AND resolution is EMPTY
 fixVersion = "1.2.0" AND resolution is not EMPTY
 ```
 
+## Common Jira Server notes
+
+- user APIs expect legacy usernames, not `accountId`
+- custom fields are typically named like `customfield_12345`
+- Agile endpoints may be unavailable without Jira Software
+- attachment uploads require `X-Atlassian-Token: no-check`
+- transition availability depends on workflow state and Jira permissions
+
+## SSL and internal CAs
+
+For internal Jira instances with a private certificate authority:
+
+```env
+JIRA_STRICT_SSL=true
+JIRA_CA_CERT_PATH=/absolute/path/to/internal-ca.pem
+```
+
+Temporary lab-only bypass:
+
+```env
+JIRA_STRICT_SSL=false
+```
+
+Do not disable SSL verification permanently in production.
+
 ## Docker
 
-Build and run:
+Build and run locally:
 
 ```bash
 docker compose build
 docker compose up
 ```
 
-The container uses stdio transport, so it is mainly useful for packaging and reproducible local execution rather than long-lived HTTP serving.
+This image still runs the stdio MCP server. It is useful for reproducible local packaging, not as a long-lived HTTP API service.
 
-## Local Architecture
-
-- `src/config.ts`: environment loading and validation
-- `src/jira/`: Jira auth, endpoints, pagination, client, errors, shared types
-- `src/security/`: policy guards, redaction, limits, audit
-- `src/tools/`: MCP tools by category
-- `src/server.ts`: MCP server assembly
-- `src/index.ts`: stdio entrypoint
-
-The server currently uses the stable `@modelcontextprotocol/sdk` package with stdio transport because it is the safest choice for current client compatibility and local MCP workflows.
-
-## Testing
-
-```bash
-npm test
-```
-
-Current tests cover:
-
-- config parsing
-- pagination helpers
-- policy guards
-- Jira client search behavior
-- representative project and issue tool handlers
-
-## Publishing Notes
-
-Selected npm package name:
-
-- `@devquasarx9/jira-mcp-server`
-
-GitHub Actions workflows:
-
-- `.github/workflows/ci.yml`: PR and push validation
-- `.github/workflows/publish.yml`: publish to npm when a GitHub release is published and the release tag matches `v<package.json version>`
-
-The package is already prepared for publishing with:
-
-- `bin` field for `jira-mcp-server`
-- `files` allowlist
-- `prepack` build step
-- npm trusted publishing metadata in `package.json`
-
-Validation before publishing:
+## Development
 
 ```bash
 npm run typecheck
@@ -422,23 +397,39 @@ npm test
 npm run pack:dry-run
 ```
 
-Because `files` is already set in `package.json`, a separate `.npmignore` is not required.
+Project layout:
 
-Trusted publishing setup on npm:
+- `src/config.ts`: environment loading and validation
+- `src/jira/`: Jira client, auth, errors, pagination, types, and endpoints
+- `src/security/`: redaction, audit, guardrails, and limits
+- `src/tools/`: MCP tools grouped by feature area
+- `src/server.ts`: MCP server assembly
+- `src/index.ts`: stdio entrypoint
 
-- create the npm package `@devquasarx9/jira-mcp-server`
-- configure a trusted publisher for GitHub repository `DevquasarX9/mcp-jira-legacy`
-- point it at the publish workflow file `.github/workflows/publish.yml`
+Contribution guidance lives in [CONTRIBUTING.md](https://github.com/DevquasarX9/mcp-jira-legacy/blob/main/CONTRIBUTING.md).
 
-## Release Checklist
+## CI and publishing
 
-- verify Jira Server 7.7.1 connectivity against staging
-- verify legacy username-based user tools
-- verify comment, transition, and assignment writes in a non-production project
-- verify Agile endpoints on an instance with Jira Software installed
-- create or update a GitHub release tag in the form `vX.Y.Z`
-- ensure the npm trusted publisher is configured before the first publish
+GitHub Actions workflows:
+
+- `.github/workflows/ci.yml`: typecheck, lint, test, build, and package verification
+- `.github/workflows/publish.yml`: publish to npm on GitHub release publication when the tag matches `v<package.json version>`
+
+The package is published as `@devquasarx9/jira-mcp-server` and already includes:
+
+- a `bin` entry for `jira-mcp-server`
+- a package `files` allowlist
+- a `prepack` build step
+- npm trusted publishing metadata
+
+## Release checklist
+
+- verify connectivity against a Jira Server or Data Center staging instance
+- verify username-based user flows on a Jira 7-compatible target
+- verify write paths in a non-production project before enabling them broadly
+- verify Agile tools on an instance with Jira Software available
 - run `npm run typecheck`
 - run `npm run build`
 - run `npm test`
 - run `npm run pack:dry-run`
+- publish a GitHub release with a tag matching `v<package.json version>`

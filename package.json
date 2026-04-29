@@ -1,7 +1,7 @@
 {
   "name": "@devquasarx9/jira-mcp-server",
   "version": "0.1.1",
-  "description": "Production-oriented MCP server for legacy Jira Server and compatible self-hosted Jira instances",
+  "description": "MCP server for legacy Jira Server and Jira Data Center using REST API v2",
   "type": "module",
   "bin": {
     "jira-mcp-server": "./dist/index.js"
@@ -33,10 +33,18 @@
   "keywords": [
     "jira",
     "jira-server",
+    "jira-server-7",
     "jira-data-center",
+    "self-hosted-jira",
     "jira-rest-api",
+    "jira-rest-api-v2",
+    "atlassian",
     "mcp",
     "model-context-protocol",
+    "claude-desktop",
+    "cursor",
+    "codex",
+    "stdio",
     "typescript"
   ],
   "author": "Ivelin Ivanov",
