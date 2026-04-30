@@ -1,5 +1,5 @@
 [mcp_servers.jira]
-command = "jira-mcp-server"
+command = "jira-legacy-mcp-server"
 
 [mcp_servers.jira.env]
 JIRA_BASE_URL = "https://jira.example.com"

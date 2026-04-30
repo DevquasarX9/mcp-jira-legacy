@@ -1,5 +1,5 @@
 services:
-  jira-mcp-server:
+  jira-legacy-mcp-server:
     build:
       context: .
       dockerfile: Dockerfile

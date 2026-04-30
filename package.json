@@ -1,10 +1,10 @@
 {
-  "name": "@devquasarx9/jira-mcp-server",
+  "name": "jira-legacy-mcp-cli",
   "version": "0.1.2",
   "description": "MCP server for legacy Jira Server and Jira Data Center using REST API v2",
   "type": "module",
   "bin": {
-    "jira-mcp-server": "./dist/index.js"
+    "jira-legacy-mcp-server": "./dist/index.js"
   },
   "files": [
     "dist",

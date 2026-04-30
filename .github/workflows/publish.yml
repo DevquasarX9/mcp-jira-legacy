@@ -112,4 +112,4 @@ jobs:
           PREFIX_DIR="${RUNNER_TEMP}/npm-smoke"
 
           npm install --global --prefix "${PREFIX_DIR}" "${PACKAGE_NAME}@${PACKAGE_VERSION}"
-          test -x "${PREFIX_DIR}/bin/jira-mcp-server"
+          test -x "${PREFIX_DIR}/bin/jira-legacy-mcp-server"

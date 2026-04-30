@@ -3,19 +3,19 @@
 Install globally:
 
 ```bash
-npm install -g @devquasarx9/jira-mcp-server
+npm install -g jira-legacy-mcp-cli
 ```
 
 Or use `npx` if you do not want a global install:
 
 ```bash
-claude mcp add jira -- npx -y @devquasarx9/jira-mcp-server
+claude mcp add jira -- npx -y jira-legacy-mcp-cli
 ```
 
 If you installed globally, add the server directly:
 
 ```bash
-claude mcp add jira -- jira-mcp-server
+claude mcp add jira -- jira-legacy-mcp-server
 ```
 
 Set the required environment variables before launching Claude Code:
