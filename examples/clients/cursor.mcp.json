@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "jira": {
-      "command": "jira-mcp-server",
+      "command": "jira-legacy-mcp-server",
       "env": {
         "JIRA_BASE_URL": "https://jira.example.com",
         "JIRA_AUTH_MODE": "basic",

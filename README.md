@@ -1,11 +1,11 @@
-# jira-mcp-server
+# Jira Legacy MCP Server
 
-[![npm version](https://img.shields.io/npm/v/%40devquasarx9%2Fjira-mcp-server)](https://www.npmjs.com/package/@devquasarx9/jira-mcp-server)
-[![npm downloads](https://img.shields.io/npm/dm/%40devquasarx9%2Fjira-mcp-server)](https://www.npmjs.com/package/@devquasarx9/jira-mcp-server)
+[![npm version](https://img.shields.io/npm/v/jira-legacy-mcp-cli)](https://www.npmjs.com/package/jira-legacy-mcp-cli)
+[![npm downloads](https://img.shields.io/npm/dm/jira-legacy-mcp-cli)](https://www.npmjs.com/package/jira-legacy-mcp-cli)
 
 MCP server for legacy Jira Server and Jira Data Center environments, built around Jira REST API v2 and tested with Jira Server 7.7.1 assumptions.
 
-Package: [@devquasarx9/jira-mcp-server](https://www.npmjs.com/package/@devquasarx9/jira-mcp-server)  
+Package: [jira-legacy-mcp-cli](https://www.npmjs.com/package/jira-legacy-mcp-cli)  
 Repository: [DevquasarX9/mcp-jira-legacy](https://github.com/DevquasarX9/mcp-jira-legacy)
 Works with: Claude Code, Claude Desktop, Codex, Cursor, and other MCP clients
 
@@ -21,7 +21,7 @@ This server is designed for teams that need:
 - a local stdio MCP server for tools such as Claude Desktop, Cursor, and Codex
 - safe defaults, with write tools disabled unless explicitly enabled
 
-If your Jira instance is primarily Jira Cloud, this package is probably not the right choice.
+If your Jira instance is primarily Jira Cloud or modern Jira-first tooling, this package is probably not the right choice.
 
 ## Compatibility
 
@@ -72,13 +72,13 @@ The package is intentionally conservative by default.
 ### Global install
 
 ```bash
-npm install -g @devquasarx9/jira-mcp-server
+npm install -g jira-legacy-mcp-cli
 ```
 
 ### Run with npx
 
 ```bash
-npx -y @devquasarx9/jira-mcp-server
+npx -y jira-legacy-mcp-cli
 ```
 
 ### Local development
@@ -92,7 +92,7 @@ npm test
 The installed CLI command is:
 
 ```bash
-jira-mcp-server
+jira-legacy-mcp-server
 ```
 
 ## Quick start
@@ -204,7 +204,7 @@ JIRA_READ_ONLY=true
 {
   "mcpServers": {
     "jira": {
-      "command": "jira-mcp-server",
+      "command": "jira-legacy-mcp-server",
       "env": {
         "JIRA_BASE_URL": "https://jira.example.com",
         "JIRA_AUTH_MODE": "basic",
@@ -224,7 +224,7 @@ JIRA_READ_ONLY=true
   "mcpServers": {
     "jira": {
       "command": "npx",
-      "args": ["-y", "@devquasarx9/jira-mcp-server"],
+      "args": ["-y", "jira-legacy-mcp-cli"],
       "env": {
         "JIRA_BASE_URL": "https://jira.example.com",
         "JIRA_AUTH_MODE": "basic",
@@ -241,7 +241,7 @@ JIRA_READ_ONLY=true
 
 ```toml
 [mcp_servers.jira]
-command = "jira-mcp-server"
+command = "jira-legacy-mcp-server"
 
 [mcp_servers.jira.env]
 JIRA_BASE_URL = "https://jira.example.com"
@@ -253,7 +253,7 @@ JIRA_READ_ONLY = "true"
 
 ### Claude Desktop
 
-Add the same server block to your Claude Desktop MCP configuration and point `command` to either `jira-mcp-server` or a local `node dist/index.js`.
+Add the same server block to your Claude Desktop MCP configuration and point `command` to either `jira-legacy-mcp-server` or a local `node dist/index.js`.
 
 ### Cursor
 
@@ -415,9 +415,9 @@ GitHub Actions workflows:
 - `.github/workflows/ci.yml`: typecheck, lint, test, build, and package verification
 - `.github/workflows/publish.yml`: publish to npm on GitHub release publication when the tag matches `v<package.json version>`
 
-The package is published as `@devquasarx9/jira-mcp-server` and already includes:
+The package is published as `jira-legacy-mcp-cli` and already includes:
 
-- a `bin` entry for `jira-mcp-server`
+- a `bin` entry for `jira-legacy-mcp-server`
 - a package `files` allowlist
 - a `prepack` build step
 - npm trusted publishing metadata

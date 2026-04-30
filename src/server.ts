@@ -17,7 +17,7 @@ export function createServer(config: AppConfig): ServerRuntime {
   const audit = new AuditLogger(config.auditLog, logger);
 
   const server = new McpServer({
-    name: "jira-mcp-server",
+    name: "jira-legacy-mcp-server",
     version: "0.1.0",
   });
 
