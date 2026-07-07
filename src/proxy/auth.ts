@@ -3,7 +3,7 @@ import type { ProxyConfig } from "./config.js";
 import { ProxyError } from "./errors.js";
 import { timingSafeMatch } from "./security.js";
 
-export const LOCAL_PROXY_TOKEN_HEADER = "x-jira-proxy-token";
+const LOCAL_PROXY_TOKEN_HEADER = "x-jira-proxy-token";
 
 export function validateLocalProxyToken(
   headers: IncomingHttpHeaders,

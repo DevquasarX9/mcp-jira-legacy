@@ -13,20 +13,20 @@ const baseConfig: AppConfig = {
   maxResponseBytes: 1_048_576,
   maxAttachmentBytes: 10 * 1024 * 1024,
   enableWriteTools: false,
-  enableDestructiveTools: false,
   allowedProjects: ["ABC"],
   deniedProjects: ["SECRET"],
   logLevel: "info",
   auditLog: false,
   dryRun: false,
-  readOnly: true,
   authHeaderName: "",
   authHeaderValue: "",
 };
 
 describe("guards", () => {
-  it("rejects writes when read only", () => {
-    expect(() => ensureWriteAllowed(baseConfig, "jira_add_comment")).toThrow(/JIRA_READ_ONLY=true/);
+  it("rejects writes when write tools are disabled", () => {
+    expect(() => ensureWriteAllowed(baseConfig, "jira_add_comment")).toThrow(
+      /JIRA_ENABLE_WRITE_TOOLS=false/,
+    );
   });
 
   it("scopes JQL with allow and deny lists", () => {

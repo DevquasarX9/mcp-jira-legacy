@@ -59,9 +59,7 @@ The server exposes structured Jira tools for:
 
 The package is intentionally conservative by default.
 
-- `JIRA_READ_ONLY=true` by default
 - `JIRA_ENABLE_WRITE_TOOLS=false` by default
-- `JIRA_ENABLE_DESTRUCTIVE_TOOLS=false` by default
 - tool inputs are validated with `zod`
 - project allow/deny lists are enforced for scoped operations
 - credentials, auth headers, tokens, and cookies are redacted from logs
@@ -103,7 +101,7 @@ jira-legacy-auth-proxy
 
 1. Copy `.env.example` to `.env`.
 2. Set your Jira base URL and authentication values.
-3. Keep read-only mode enabled first.
+3. Keep write tools disabled first.
 4. Run the server from your MCP client.
 
 Minimal example:
@@ -113,7 +111,6 @@ JIRA_BASE_URL=https://jira.example.com
 JIRA_AUTH_MODE=basic
 JIRA_USERNAME=your.username
 JIRA_PASSWORD=your-password
-JIRA_READ_ONLY=true
 JIRA_ENABLE_WRITE_TOOLS=false
 ```
 
@@ -143,7 +140,6 @@ JIRA_BASE_URL=http://127.0.0.1:4877
 JIRA_AUTH_MODE=header
 JIRA_AUTH_HEADER_NAME=x-jira-proxy-token
 JIRA_AUTH_HEADER_VALUE=local-shared-secret
-JIRA_READ_ONLY=true
 JIRA_ENABLE_WRITE_TOOLS=false
 ```
 
@@ -183,14 +179,12 @@ Example client configs live in the repository under [`examples/clients/`](https:
 - `JIRA_MAX_RESPONSE_BYTES=1048576`
 - `JIRA_MAX_ATTACHMENT_BYTES=10485760`
 - `JIRA_ENABLE_WRITE_TOOLS=false`
-- `JIRA_ENABLE_DESTRUCTIVE_TOOLS=false`
 - `JIRA_ALLOWED_PROJECTS`
 - `JIRA_DENIED_PROJECTS`
 - `JIRA_DEFAULT_PROJECT`
 - `JIRA_LOG_LEVEL=info`
 - `JIRA_AUDIT_LOG=false`
 - `JIRA_DRY_RUN=false`
-- `JIRA_READ_ONLY=true`
 - `JIRA_AUTH_HEADER_NAME`
 - `JIRA_AUTH_HEADER_VALUE`
 
@@ -237,7 +231,7 @@ JIRA_BASE_URL=https://jira.example.com
 JIRA_AUTH_MODE=basic
 JIRA_USERNAME=your.username
 JIRA_PASSWORD=your-password
-JIRA_READ_ONLY=true
+JIRA_ENABLE_WRITE_TOOLS=false
 ```
 
 ### Cookie auth
@@ -247,7 +241,7 @@ JIRA_BASE_URL=https://jira.example.com
 JIRA_AUTH_MODE=cookie
 JIRA_USERNAME=your.username
 JIRA_PASSWORD=your-password
-JIRA_READ_ONLY=true
+JIRA_ENABLE_WRITE_TOOLS=false
 ```
 
 ### Header auth behind a reverse proxy
@@ -257,7 +251,7 @@ JIRA_BASE_URL=https://jira.example.com
 JIRA_AUTH_MODE=header
 JIRA_AUTH_HEADER_NAME=X-Forwarded-User
 JIRA_AUTH_HEADER_VALUE=service-account
-JIRA_READ_ONLY=true
+JIRA_ENABLE_WRITE_TOOLS=false
 ```
 
 ## MCP configuration
@@ -274,7 +268,7 @@ JIRA_READ_ONLY=true
         "JIRA_AUTH_MODE": "basic",
         "JIRA_USERNAME": "your.username",
         "JIRA_PASSWORD": "your-password",
-        "JIRA_READ_ONLY": "true"
+        "JIRA_ENABLE_WRITE_TOOLS": "false"
       }
     }
   }
@@ -294,7 +288,7 @@ JIRA_READ_ONLY=true
         "JIRA_AUTH_MODE": "basic",
         "JIRA_USERNAME": "your.username",
         "JIRA_PASSWORD": "your-password",
-        "JIRA_READ_ONLY": "true"
+        "JIRA_ENABLE_WRITE_TOOLS": "false"
       }
     }
   }
@@ -312,7 +306,7 @@ JIRA_BASE_URL = "https://jira.example.com"
 JIRA_AUTH_MODE = "basic"
 JIRA_USERNAME = "your.username"
 JIRA_PASSWORD = "your-password"
-JIRA_READ_ONLY = "true"
+JIRA_ENABLE_WRITE_TOOLS = "false"
 ```
 
 ### Claude Desktop

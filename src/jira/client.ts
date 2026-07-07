@@ -6,7 +6,7 @@ import { ABSOLUTE_MAX_RESULTS } from "../security/limits.js";
 import { Logger } from "../utils/logger.js";
 import { clampNumber } from "../utils/validation.js";
 import { buildAuthHeaders } from "./auth.js";
-import { jiraAgile, jiraApi } from "./endpoints.js";
+import { jiraApi } from "./endpoints.js";
 import { JiraClientError, normalizeJiraErrorMessage } from "./errors.js";
 import { collectPaginated } from "./pagination.js";
 import type { JiraIssue, JiraPaginatedResponse } from "./types.js";

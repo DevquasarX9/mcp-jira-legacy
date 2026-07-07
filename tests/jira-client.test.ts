@@ -14,13 +14,11 @@ const config: AppConfig = {
   maxResponseBytes: 1_048_576,
   maxAttachmentBytes: 10 * 1024 * 1024,
   enableWriteTools: false,
-  enableDestructiveTools: false,
   allowedProjects: [],
   deniedProjects: [],
   logLevel: "error",
   auditLog: false,
   dryRun: false,
-  readOnly: true,
   authHeaderName: "",
   authHeaderValue: "",
 };

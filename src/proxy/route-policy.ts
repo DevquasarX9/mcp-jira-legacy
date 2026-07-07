@@ -7,7 +7,7 @@ const READ_OPERATION_OVERRIDES = new Set(["POST /rest/api/2/search"]);
 
 export interface RoutePolicyDecision {
   readonly allowed: boolean;
-  readonly reason: "allowed" | "route_not_allowed" | "read_only" | "agile_disabled";
+  readonly reason: "allowed" | "route_not_allowed" | "read_only";
   readonly access?: "read" | "write";
 }
 
@@ -19,9 +19,7 @@ export function evaluateRouteAccess(
   if (!isJiraRestPath(config, normalizedPath)) {
     return {
       allowed: false,
-      reason: normalizedPath === JIRA_AGILE_PREFIX || normalizedPath.startsWith(`${JIRA_AGILE_PREFIX}/`)
-        ? "agile_disabled"
-        : "route_not_allowed",
+      reason: "route_not_allowed",
     };
   }
 

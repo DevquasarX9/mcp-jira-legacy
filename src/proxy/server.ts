@@ -2,7 +2,7 @@ import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest }
 import { Agent, request, type Dispatcher } from "undici";
 import { Logger } from "../utils/logger.js";
 import { evaluateRouteAccess } from "./route-policy.js";
-import { LOCAL_PROXY_TOKEN_HEADER, validateLocalProxyToken } from "./auth.js";
+import { validateLocalProxyToken } from "./auth.js";
 import type { ProxyConfig } from "./config.js";
 import { isProxyError, ProxyError } from "./errors.js";
 import { buildUpstreamHeaders } from "./headers.js";
@@ -181,5 +181,3 @@ function buildDispatcher(config: ProxyConfig): Dispatcher {
     },
   });
 }
-
-export { LOCAL_PROXY_TOKEN_HEADER };

@@ -24,7 +24,6 @@ async function main(): Promise<void> {
   await server.connect(transport);
   logger.info("jira_mcp_server_started", {
     baseUrl: config.baseUrl,
-    readOnly: config.readOnly,
     writeToolsEnabled: config.enableWriteTools,
   });
 }

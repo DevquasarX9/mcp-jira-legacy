@@ -6,7 +6,7 @@ import { Logger } from "../src/utils/logger.js";
 import { registerCommentTools } from "../src/tools/comments.js";
 import { registerIssueReadTools } from "../src/tools/issues.read.js";
 
-const readOnlyConfig: AppConfig = {
+const config: AppConfig = {
   baseUrl: "https://jira.example.com",
   authMode: "basic",
   username: "alice",
@@ -17,13 +17,11 @@ const readOnlyConfig: AppConfig = {
   maxResponseBytes: 1_048_576,
   maxAttachmentBytes: 10 * 1024 * 1024,
   enableWriteTools: false,
-  enableDestructiveTools: false,
   allowedProjects: ["ABC"],
   deniedProjects: [],
   logLevel: "error",
   auditLog: false,
   dryRun: false,
-  readOnly: true,
   authHeaderName: "",
   authHeaderValue: "",
 };
@@ -35,7 +33,7 @@ describe("issue tools", () => {
       searchIssues: vi.fn(async () => ({ total: 0, issues: [] })),
     };
     registerIssueReadTools(server, {
-      config: readOnlyConfig,
+      config,
       client: client as never,
       audit: new AuditLogger(false, new Logger("error")),
       logger: new Logger("error"),
@@ -52,10 +50,10 @@ describe("issue tools", () => {
     );
   });
 
-  it("blocks comment writes in read-only mode", async () => {
+  it("blocks comment writes when write tools are disabled", async () => {
     const server = new McpServer({ name: "test", version: "1.0.0" });
     registerCommentTools(server, {
-      config: readOnlyConfig,
+      config,
       client: { post: vi.fn() } as never,
       audit: new AuditLogger(false, new Logger("error")),
       logger: new Logger("error"),
@@ -66,6 +64,6 @@ describe("issue tools", () => {
     const result = await handler({ issueKey: "ABC-1", body: "test" }, {});
 
     expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain("READ_ONLY_MODE");
+    expect(result.content[0].text).toContain("WRITE_TOOLS_DISABLED");
   });
 });
