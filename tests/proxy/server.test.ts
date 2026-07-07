@@ -14,11 +14,8 @@ const baseConfig: ProxyConfig = {
   proxyHost: "127.0.0.1",
   proxyPort: 4877,
   localProxyToken: "local-secret",
-  proxyReadOnly: true,
   proxyEnableWrite: false,
-  proxyEnableDestructive: false,
   enableAgileApi: false,
-  enableAttachments: false,
   maxRequestBytes: 1_048_576,
   maxResponseBytes: 128,
   upstreamTimeoutMs: 20,
@@ -79,14 +76,14 @@ describe("proxy server", () => {
     await app.close();
   });
 
-  it("rejects disallowed routes", async () => {
+  it("rejects non-Jira REST paths", async () => {
     const app = createProxyServer(baseConfig, {
       logger: new Logger("debug", () => undefined),
     });
 
     const response = await app.inject({
       method: "GET",
-      url: "/rest/api/2/user/password",
+      url: "/plugins/servlet/admin",
       headers: {
         "x-jira-proxy-token": "local-secret",
       },

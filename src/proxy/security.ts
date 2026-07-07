@@ -11,7 +11,7 @@ export interface NormalizedRequestTarget {
 export function assertSafeBindHost(host: string, allowNonLocalBind: boolean): void {
   if (!allowNonLocalBind && !LOCAL_HOSTS.has(host)) {
     throw new ProxyConfigurationError(
-      `refusing to bind to non-local host "${host}" without PROXY_ALLOW_NON_LOCAL_BIND=true`,
+      `refusing to bind to non-local host "${host}" without JIRA_PROXY_ALLOW_NON_LOCAL_BIND=true`,
     );
   }
 }

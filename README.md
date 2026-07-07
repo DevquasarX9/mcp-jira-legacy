@@ -119,18 +119,17 @@ JIRA_ENABLE_WRITE_TOOLS=false
 
 ## Local auth proxy
 
-Use `jira-legacy-auth-proxy` when you want the MCP server to talk to localhost while real Jira credentials live only in the proxy process environment. Prefer the `PROXY_JIRA_*` variables below for the proxy so they do not collide with the MCP server's own `JIRA_*` variables.
+Use `jira-legacy-auth-proxy` when you want the MCP server to talk to localhost while real Jira credentials live only in the proxy process environment. Proxy settings use the `JIRA_PROXY_*` prefix so they follow the package's Jira naming convention without colliding with the MCP server's own `JIRA_*` variables.
 
 Start the proxy:
 
 ```env
-PROXY_JIRA_UPSTREAM_BASE_URL=https://jira.example.com
-PROXY_JIRA_AUTH_MODE=basic
-PROXY_JIRA_USERNAME=your.username
-PROXY_JIRA_PASSWORD=your-password
-PROXY_LOCAL_TOKEN=local-shared-secret
-PROXY_READ_ONLY=true
-PROXY_ENABLE_WRITE=false
+JIRA_PROXY_UPSTREAM_BASE_URL=https://jira.example.com
+JIRA_PROXY_AUTH_MODE=basic
+JIRA_PROXY_USERNAME=your.username
+JIRA_PROXY_PASSWORD=your-password
+JIRA_PROXY_LOCAL_TOKEN=local-shared-secret
+JIRA_PROXY_ENABLE_WRITE=false
 ```
 
 ```bash
@@ -151,11 +150,11 @@ JIRA_ENABLE_WRITE_TOOLS=false
 Proxy behavior:
 
 - binds to `127.0.0.1:4877` by default
-- refuses non-local bind hosts unless `PROXY_ALLOW_NON_LOCAL_BIND=true`
-- only proxies allowlisted Jira Server REST API v2 routes
-- keeps write routes blocked unless both `PROXY_READ_ONLY=false` and `PROXY_ENABLE_WRITE=true`
+- refuses non-local bind hosts unless `JIRA_PROXY_ALLOW_NON_LOCAL_BIND=true`
+- only proxies Jira Server REST API v2 paths by default
+- keeps write methods blocked unless `JIRA_PROXY_ENABLE_WRITE=true`
 - strips caller `Authorization`, `Cookie`, forwarding, and proxy headers before adding Jira auth
-- supports optional Agile routes with `PROXY_ENABLE_AGILE_API=true`
+- supports optional Agile routes with `JIRA_PROXY_ENABLE_AGILE_API=true`
 
 ## MCP client setup
 
@@ -197,29 +196,24 @@ Example client configs live in the repository under [`examples/clients/`](https:
 
 ### Local proxy variables
 
-- `PROXY_JIRA_UPSTREAM_BASE_URL`
-- `PROXY_JIRA_AUTH_MODE=basic|bearer|header|none`
-- `PROXY_JIRA_USERNAME`
-- `PROXY_JIRA_PASSWORD` or `PROXY_JIRA_TOKEN`
-- `PROXY_JIRA_AUTH_HEADER_NAME`
-- `PROXY_JIRA_AUTH_HEADER_VALUE`
-- `PROXY_HOST=127.0.0.1`
-- `PROXY_PORT=4877`
-- `PROXY_LOCAL_TOKEN`
-- `PROXY_READ_ONLY=true`
-- `PROXY_ENABLE_WRITE=false`
-- `PROXY_ENABLE_DESTRUCTIVE=false`
-- `PROXY_ENABLE_AGILE_API=false`
-- `PROXY_ENABLE_ATTACHMENTS=false`
-- `PROXY_MAX_REQUEST_BYTES=1048576`
-- `PROXY_MAX_RESPONSE_BYTES=10485760`
-- `PROXY_UPSTREAM_TIMEOUT_MS=30000`
-- `PROXY_STRICT_SSL=true`
-- `PROXY_CA_CERT_PATH`
-- `PROXY_LOG_LEVEL=info`
-- `PROXY_ALLOW_NON_LOCAL_BIND=false`
-
-The proxy also accepts the original standalone proxy names `JIRA_UPSTREAM_BASE_URL`, `JIRA_AUTH_MODE`, `JIRA_USERNAME`, `JIRA_PASSWORD`, `JIRA_TOKEN`, `JIRA_AUTH_HEADER_NAME`, and `JIRA_AUTH_HEADER_VALUE` as fallbacks.
+- `JIRA_PROXY_UPSTREAM_BASE_URL`
+- `JIRA_PROXY_AUTH_MODE=basic|bearer|header|none`
+- `JIRA_PROXY_USERNAME`
+- `JIRA_PROXY_PASSWORD` or `JIRA_PROXY_TOKEN`
+- `JIRA_PROXY_AUTH_HEADER_NAME`
+- `JIRA_PROXY_AUTH_HEADER_VALUE`
+- `JIRA_PROXY_HOST=127.0.0.1`
+- `JIRA_PROXY_PORT=4877`
+- `JIRA_PROXY_LOCAL_TOKEN`
+- `JIRA_PROXY_ENABLE_WRITE=false`
+- `JIRA_PROXY_ENABLE_AGILE_API=false`
+- `JIRA_PROXY_MAX_REQUEST_BYTES=1048576`
+- `JIRA_PROXY_MAX_RESPONSE_BYTES=10485760`
+- `JIRA_PROXY_UPSTREAM_TIMEOUT_MS=30000`
+- `JIRA_PROXY_STRICT_SSL=true`
+- `JIRA_PROXY_CA_CERT_PATH`
+- `JIRA_PROXY_LOG_LEVEL=info`
+- `JIRA_PROXY_ALLOW_NON_LOCAL_BIND=false`
 
 ### Authentication modes
 

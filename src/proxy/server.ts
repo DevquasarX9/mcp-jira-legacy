@@ -1,7 +1,7 @@
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
 import { Agent, request, type Dispatcher } from "undici";
 import { Logger } from "../utils/logger.js";
-import { evaluateRouteAccess } from "./allowlist.js";
+import { evaluateRouteAccess } from "./route-policy.js";
 import { LOCAL_PROXY_TOKEN_HEADER, validateLocalProxyToken } from "./auth.js";
 import type { ProxyConfig } from "./config.js";
 import { isProxyError, ProxyError } from "./errors.js";
@@ -88,7 +88,6 @@ export async function startProxyServer(
   logger.info("jira_auth_proxy_started", {
     proxyHost: config.proxyHost,
     proxyPort: config.proxyPort,
-    readOnly: config.proxyReadOnly,
     writeEnabled: config.proxyEnableWrite,
     localProxyTokenRequired: config.localProxyToken !== undefined,
   });
@@ -127,7 +126,7 @@ async function handleProxyRequest({
       403,
       decision.reason === "read_only" ? "READ_ONLY_MODE" : "ROUTE_NOT_ALLOWED",
       decision.reason === "read_only"
-        ? "write route rejected because PROXY_READ_ONLY=true"
+        ? "write route rejected because JIRA_PROXY_ENABLE_WRITE=false"
         : "route not allowed by proxy policy",
     );
   }

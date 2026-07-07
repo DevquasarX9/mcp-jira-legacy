@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { loadProxyConfig } from "../../src/proxy/config.js";
 
 const baseEnv = {
-  PROXY_JIRA_UPSTREAM_BASE_URL: "https://jira.example.com",
-  PROXY_JIRA_AUTH_MODE: "basic",
-  PROXY_JIRA_USERNAME: "jira-user",
-  PROXY_JIRA_PASSWORD: "jira-pass",
+  JIRA_PROXY_UPSTREAM_BASE_URL: "https://jira.example.com",
+  JIRA_PROXY_AUTH_MODE: "basic",
+  JIRA_PROXY_USERNAME: "jira-user",
+  JIRA_PROXY_PASSWORD: "jira-pass",
 };
 
 describe("loadProxyConfig", () => {
@@ -15,14 +15,14 @@ describe("loadProxyConfig", () => {
     expect(config.jiraUpstreamBaseUrl).toBe("https://jira.example.com");
     expect(config.proxyHost).toBe("127.0.0.1");
     expect(config.proxyPort).toBe(4877);
-    expect(config.proxyReadOnly).toBe(true);
+    expect(config.proxyEnableWrite).toBe(false);
   });
 
   it("refuses to bind to 0.0.0.0 by default", () => {
     expect(() =>
       loadProxyConfig({
         ...baseEnv,
-        PROXY_HOST: "0.0.0.0",
+        JIRA_PROXY_HOST: "0.0.0.0",
       }),
     ).toThrow(/refusing to bind/i);
   });
@@ -30,32 +30,30 @@ describe("loadProxyConfig", () => {
   it("requires Jira credentials in basic mode", () => {
     expect(() =>
       loadProxyConfig({
-        PROXY_JIRA_UPSTREAM_BASE_URL: "https://jira.example.com",
-        PROXY_JIRA_AUTH_MODE: "basic",
-        PROXY_JIRA_USERNAME: "jira-user",
+        JIRA_PROXY_UPSTREAM_BASE_URL: "https://jira.example.com",
+        JIRA_PROXY_AUTH_MODE: "basic",
+        JIRA_PROXY_USERNAME: "jira-user",
       }),
-    ).toThrow(/PROXY_JIRA_PASSWORD.*PROXY_JIRA_TOKEN/i);
+    ).toThrow(/JIRA_PROXY_PASSWORD.*JIRA_PROXY_TOKEN/i);
   });
 
-  it("requires read-only mode to be disabled before enabling writes", () => {
-    expect(() =>
-      loadProxyConfig({
-        ...baseEnv,
-        PROXY_READ_ONLY: "true",
-        PROXY_ENABLE_WRITE: "true",
-      }),
-    ).toThrow(/PROXY_ENABLE_WRITE=true requires PROXY_READ_ONLY=false/i);
-  });
-
-  it("keeps compatibility with the original standalone proxy env names", () => {
+  it("enables proxy write forwarding with one explicit flag", () => {
     const config = loadProxyConfig({
-      JIRA_UPSTREAM_BASE_URL: "https://jira.example.com",
-      JIRA_AUTH_MODE: "basic",
-      JIRA_USERNAME: "jira-user",
-      JIRA_PASSWORD: "jira-pass",
+      ...baseEnv,
+      JIRA_PROXY_ENABLE_WRITE: "true",
     });
 
-    expect(config.jiraAuthMode).toBe("basic");
-    expect(config.jiraUsername).toBe("jira-user");
+    expect(config.proxyEnableWrite).toBe(true);
+  });
+
+  it("supports bearer auth with the proxy naming convention", () => {
+    const config = loadProxyConfig({
+      JIRA_PROXY_UPSTREAM_BASE_URL: "https://jira.example.com",
+      JIRA_PROXY_AUTH_MODE: "bearer",
+      JIRA_PROXY_TOKEN: "jira-token",
+    });
+
+    expect(config.jiraAuthMode).toBe("bearer");
+    expect(config.jiraToken).toBe("jira-token");
   });
 });
