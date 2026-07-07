@@ -5,7 +5,6 @@
   "type": "module",
   "bin": {
     "jira-legacy-mcp-cli": "./dist/index.js",
-    "jira-legacy-mcp-server": "./dist/index.js",
     "jira-legacy-auth-proxy": "./dist/proxy/index.js"
   },
   "files": [

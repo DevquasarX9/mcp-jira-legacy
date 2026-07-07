@@ -15,7 +15,7 @@ claude mcp add jira -- npx -y jira-legacy-mcp-cli
 If you installed globally, add the server directly:
 
 ```bash
-claude mcp add jira -- jira-legacy-mcp-server
+claude mcp add jira -- jira-legacy-mcp-cli
 ```
 
 Set the required environment variables before launching Claude Code:

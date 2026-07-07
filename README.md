@@ -93,7 +93,6 @@ The installed CLI commands are:
 
 ```bash
 jira-legacy-mcp-cli
-jira-legacy-mcp-server
 jira-legacy-auth-proxy
 ```
 
@@ -262,7 +261,7 @@ JIRA_ENABLE_WRITE_TOOLS=false
 {
   "mcpServers": {
     "jira": {
-      "command": "jira-legacy-mcp-server",
+      "command": "jira-legacy-mcp-cli",
       "env": {
         "JIRA_BASE_URL": "https://jira.example.com",
         "JIRA_AUTH_MODE": "basic",
@@ -299,7 +298,7 @@ JIRA_ENABLE_WRITE_TOOLS=false
 
 ```toml
 [mcp_servers.jira]
-command = "jira-legacy-mcp-server"
+command = "jira-legacy-mcp-cli"
 
 [mcp_servers.jira.env]
 JIRA_BASE_URL = "https://jira.example.com"
@@ -311,7 +310,7 @@ JIRA_ENABLE_WRITE_TOOLS = "false"
 
 ### Claude Desktop
 
-Add the same server block to your Claude Desktop MCP configuration and point `command` to either `jira-legacy-mcp-server` or a local `node dist/index.js`.
+Add the same server block to your Claude Desktop MCP configuration and point `command` to either `jira-legacy-mcp-cli` or a local `node dist/index.js`.
 
 ### Cursor
 
@@ -476,7 +475,7 @@ GitHub Actions workflows:
 
 The package is published as `jira-legacy-mcp-cli` and already includes:
 
-- a `bin` entry for `jira-legacy-mcp-server`
+- bin entries for `jira-legacy-mcp-cli` and `jira-legacy-auth-proxy`
 - a package `files` allowlist
 - a `prepack` build step
 - npm trusted publishing metadata
