@@ -1,6 +1,6 @@
 {
   "name": "jira-legacy-mcp-cli",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MCP server for legacy Jira Server and Jira Data Center using REST API v2",
   "type": "module",
   "bin": {
