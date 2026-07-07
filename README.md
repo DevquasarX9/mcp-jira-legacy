@@ -19,6 +19,7 @@ This server is designed for teams that need:
 - REST API v2 compatibility
 - legacy username and `name` user fields instead of Jira Cloud `accountId`
 - a local stdio MCP server for tools such as Claude Desktop, Cursor, and Codex
+- an optional local auth proxy so Jira credentials can stay outside MCP client prompts/config
 - safe defaults, with write tools disabled unless explicitly enabled
 
 If your Jira instance is primarily Jira Cloud or modern Jira-first tooling, this package is probably not the right choice.
@@ -64,6 +65,7 @@ The package is intentionally conservative by default.
 - tool inputs are validated with `zod`
 - project allow/deny lists are enforced for scoped operations
 - credentials, auth headers, tokens, and cookies are redacted from logs
+- optional local auth proxy strips client auth headers before injecting Jira credentials
 - `JIRA_DRY_RUN=true` can preview write payloads without mutating Jira
 - `JIRA_AUDIT_LOG=true` can record write activity without exposing secrets
 
@@ -89,10 +91,12 @@ npm run build
 npm test
 ```
 
-The installed CLI command is:
+The installed CLI commands are:
 
 ```bash
+jira-legacy-mcp-cli
 jira-legacy-mcp-server
+jira-legacy-auth-proxy
 ```
 
 ## Quick start
@@ -112,6 +116,46 @@ JIRA_PASSWORD=your-password
 JIRA_READ_ONLY=true
 JIRA_ENABLE_WRITE_TOOLS=false
 ```
+
+## Local auth proxy
+
+Use `jira-legacy-auth-proxy` when you want the MCP server to talk to localhost while real Jira credentials live only in the proxy process environment. Prefer the `PROXY_JIRA_*` variables below for the proxy so they do not collide with the MCP server's own `JIRA_*` variables.
+
+Start the proxy:
+
+```env
+PROXY_JIRA_UPSTREAM_BASE_URL=https://jira.example.com
+PROXY_JIRA_AUTH_MODE=basic
+PROXY_JIRA_USERNAME=your.username
+PROXY_JIRA_PASSWORD=your-password
+PROXY_LOCAL_TOKEN=local-shared-secret
+PROXY_READ_ONLY=true
+PROXY_ENABLE_WRITE=false
+```
+
+```bash
+jira-legacy-auth-proxy
+```
+
+Point the MCP server at the local proxy:
+
+```env
+JIRA_BASE_URL=http://127.0.0.1:4877
+JIRA_AUTH_MODE=header
+JIRA_AUTH_HEADER_NAME=x-jira-proxy-token
+JIRA_AUTH_HEADER_VALUE=local-shared-secret
+JIRA_READ_ONLY=true
+JIRA_ENABLE_WRITE_TOOLS=false
+```
+
+Proxy behavior:
+
+- binds to `127.0.0.1:4877` by default
+- refuses non-local bind hosts unless `PROXY_ALLOW_NON_LOCAL_BIND=true`
+- only proxies allowlisted Jira Server REST API v2 routes
+- keeps write routes blocked unless both `PROXY_READ_ONLY=false` and `PROXY_ENABLE_WRITE=true`
+- strips caller `Authorization`, `Cookie`, forwarding, and proxy headers before adding Jira auth
+- supports optional Agile routes with `PROXY_ENABLE_AGILE_API=true`
 
 ## MCP client setup
 
@@ -150,6 +194,32 @@ Example client configs live in the repository under [`examples/clients/`](https:
 - `JIRA_READ_ONLY=true`
 - `JIRA_AUTH_HEADER_NAME`
 - `JIRA_AUTH_HEADER_VALUE`
+
+### Local proxy variables
+
+- `PROXY_JIRA_UPSTREAM_BASE_URL`
+- `PROXY_JIRA_AUTH_MODE=basic|bearer|header|none`
+- `PROXY_JIRA_USERNAME`
+- `PROXY_JIRA_PASSWORD` or `PROXY_JIRA_TOKEN`
+- `PROXY_JIRA_AUTH_HEADER_NAME`
+- `PROXY_JIRA_AUTH_HEADER_VALUE`
+- `PROXY_HOST=127.0.0.1`
+- `PROXY_PORT=4877`
+- `PROXY_LOCAL_TOKEN`
+- `PROXY_READ_ONLY=true`
+- `PROXY_ENABLE_WRITE=false`
+- `PROXY_ENABLE_DESTRUCTIVE=false`
+- `PROXY_ENABLE_AGILE_API=false`
+- `PROXY_ENABLE_ATTACHMENTS=false`
+- `PROXY_MAX_REQUEST_BYTES=1048576`
+- `PROXY_MAX_RESPONSE_BYTES=10485760`
+- `PROXY_UPSTREAM_TIMEOUT_MS=30000`
+- `PROXY_STRICT_SSL=true`
+- `PROXY_CA_CERT_PATH`
+- `PROXY_LOG_LEVEL=info`
+- `PROXY_ALLOW_NON_LOCAL_BIND=false`
+
+The proxy also accepts the original standalone proxy names `JIRA_UPSTREAM_BASE_URL`, `JIRA_AUTH_MODE`, `JIRA_USERNAME`, `JIRA_PASSWORD`, `JIRA_TOKEN`, `JIRA_AUTH_HEADER_NAME`, and `JIRA_AUTH_HEADER_VALUE` as fallbacks.
 
 ### Authentication modes
 
@@ -403,6 +473,7 @@ Project layout:
 - `src/jira/`: Jira client, auth, errors, pagination, types, and endpoints
 - `src/security/`: redaction, audit, guardrails, and limits
 - `src/tools/`: MCP tools grouped by feature area
+- `src/proxy/`: optional local auth proxy, policy, header sanitization, and upstream forwarding
 - `src/server.ts`: MCP server assembly
 - `src/index.ts`: stdio entrypoint
 
