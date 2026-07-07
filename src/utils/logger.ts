@@ -2,6 +2,7 @@ import type { JsonRecord } from "./result.js";
 import { redactSecrets } from "../security/redaction.js";
 
 export type LogLevel = "debug" | "info" | "warn" | "error";
+type LogSink = (line: string) => void;
 
 const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
   debug: 10,
@@ -11,7 +12,10 @@ const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
 };
 
 export class Logger {
-  public constructor(private readonly level: LogLevel) {}
+  public constructor(
+    private readonly level: LogLevel,
+    private readonly sink: LogSink = (line) => process.stderr.write(`${line}\n`),
+  ) {}
 
   public debug(message: string, context?: JsonRecord): void {
     this.log("debug", message, context);
@@ -41,6 +45,6 @@ export class Logger {
       ...(context === undefined ? {} : { context: redactSecrets(context) }),
     };
 
-    process.stderr.write(`${JSON.stringify(payload)}\n`);
+    this.sink(JSON.stringify(payload));
   }
 }

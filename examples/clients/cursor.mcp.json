@@ -1,13 +1,12 @@
 {
   "mcpServers": {
     "jira": {
-      "command": "jira-legacy-mcp-server",
+      "command": "jira-legacy-mcp-cli",
       "env": {
         "JIRA_BASE_URL": "https://jira.example.com",
         "JIRA_AUTH_MODE": "basic",
         "JIRA_USERNAME": "your.username",
         "JIRA_PASSWORD": "your-password",
-        "JIRA_READ_ONLY": "true",
         "JIRA_ENABLE_WRITE_TOOLS": "false"
       }
     }

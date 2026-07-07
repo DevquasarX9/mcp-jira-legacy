@@ -27,14 +27,12 @@ const rawConfigSchema = z
     JIRA_MAX_RESPONSE_BYTES: z.string().optional(),
     JIRA_MAX_ATTACHMENT_BYTES: z.string().optional(),
     JIRA_ENABLE_WRITE_TOOLS: z.string().optional(),
-    JIRA_ENABLE_DESTRUCTIVE_TOOLS: z.string().optional(),
     JIRA_ALLOWED_PROJECTS: z.string().optional(),
     JIRA_DENIED_PROJECTS: z.string().optional(),
     JIRA_DEFAULT_PROJECT: z.string().optional(),
     JIRA_LOG_LEVEL: logLevelSchema.optional(),
     JIRA_AUDIT_LOG: z.string().optional(),
     JIRA_DRY_RUN: z.string().optional(),
-    JIRA_READ_ONLY: z.string().optional(),
     JIRA_AUTH_HEADER_NAME: z.string().optional(),
     JIRA_AUTH_HEADER_VALUE: z.string().optional(),
   })
@@ -109,14 +107,12 @@ export interface AppConfig {
   readonly maxResponseBytes: number;
   readonly maxAttachmentBytes: number;
   readonly enableWriteTools: boolean;
-  readonly enableDestructiveTools: boolean;
   readonly allowedProjects: string[];
   readonly deniedProjects: string[];
   readonly defaultProject?: string;
   readonly logLevel: LogLevel;
   readonly auditLog: boolean;
   readonly dryRun: boolean;
-  readonly readOnly: boolean;
   readonly authHeaderName: string;
   readonly authHeaderValue: string;
 }
@@ -146,14 +142,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       DEFAULT_MAX_ATTACHMENT_BYTES,
     ),
     enableWriteTools: parseBoolean(parsedConfig.JIRA_ENABLE_WRITE_TOOLS, false),
-    enableDestructiveTools: parseBoolean(parsedConfig.JIRA_ENABLE_DESTRUCTIVE_TOOLS, false),
     allowedProjects: parseCsv(parsedConfig.JIRA_ALLOWED_PROJECTS).map((value) => value.toUpperCase()),
     deniedProjects: parseCsv(parsedConfig.JIRA_DENIED_PROJECTS).map((value) => value.toUpperCase()),
     defaultProject: parsedConfig.JIRA_DEFAULT_PROJECT?.toUpperCase(),
     logLevel: parsedConfig.JIRA_LOG_LEVEL ?? "info",
     auditLog: parseBoolean(parsedConfig.JIRA_AUDIT_LOG, false),
     dryRun: parseBoolean(parsedConfig.JIRA_DRY_RUN, false),
-    readOnly: parseBoolean(parsedConfig.JIRA_READ_ONLY, true),
     authHeaderName: parsedConfig.JIRA_AUTH_HEADER_NAME ?? "",
     authHeaderValue: parsedConfig.JIRA_AUTH_HEADER_VALUE ?? "",
   };

@@ -1,5 +1,5 @@
 import type { BodyInit, Dispatcher, HeadersInit, Response } from "undici";
-import { fetch as undiciFetch, getSetCookies } from "undici";
+import { getSetCookies } from "undici";
 import type { AppConfig } from "../config.js";
 import { jiraAuth } from "./endpoints.js";
 import { JiraClientError, normalizeJiraErrorMessage } from "./errors.js";

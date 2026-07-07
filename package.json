@@ -4,7 +4,8 @@
   "description": "MCP server for legacy Jira Server and Jira Data Center using REST API v2",
   "type": "module",
   "bin": {
-    "jira-legacy-mcp-server": "./dist/index.js"
+    "jira-legacy-mcp-cli": "./dist/index.js",
+    "jira-legacy-auth-proxy": "./dist/proxy/index.js"
   },
   "files": [
     "dist",
@@ -22,10 +23,12 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist coverage",
     "dev": "tsx watch src/index.ts",
+    "dev:proxy": "tsx watch src/proxy/index.ts",
     "lint": "npm run typecheck",
     "pack:dry-run": "npm pack --dry-run",
     "prepack": "npm run clean && npm run build",
     "start": "node dist/index.js",
+    "start:proxy": "node dist/proxy/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit"
@@ -65,6 +68,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "dotenv": "^16.4.7",
+    "fastify": "^5.10.0",
     "undici": "^7.13.0",
     "zod": "^3.25.76"
   },

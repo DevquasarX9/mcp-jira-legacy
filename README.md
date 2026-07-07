@@ -19,6 +19,7 @@ This server is designed for teams that need:
 - REST API v2 compatibility
 - legacy username and `name` user fields instead of Jira Cloud `accountId`
 - a local stdio MCP server for tools such as Claude Desktop, Cursor, and Codex
+- an optional local auth proxy so Jira credentials can stay outside MCP client prompts/config
 - safe defaults, with write tools disabled unless explicitly enabled
 
 If your Jira instance is primarily Jira Cloud or modern Jira-first tooling, this package is probably not the right choice.
@@ -58,12 +59,11 @@ The server exposes structured Jira tools for:
 
 The package is intentionally conservative by default.
 
-- `JIRA_READ_ONLY=true` by default
 - `JIRA_ENABLE_WRITE_TOOLS=false` by default
-- `JIRA_ENABLE_DESTRUCTIVE_TOOLS=false` by default
 - tool inputs are validated with `zod`
 - project allow/deny lists are enforced for scoped operations
 - credentials, auth headers, tokens, and cookies are redacted from logs
+- optional local auth proxy strips client auth headers before injecting Jira credentials
 - `JIRA_DRY_RUN=true` can preview write payloads without mutating Jira
 - `JIRA_AUDIT_LOG=true` can record write activity without exposing secrets
 
@@ -89,17 +89,18 @@ npm run build
 npm test
 ```
 
-The installed CLI command is:
+The installed CLI commands are:
 
 ```bash
-jira-legacy-mcp-server
+jira-legacy-mcp-cli
+jira-legacy-auth-proxy
 ```
 
 ## Quick start
 
 1. Copy `.env.example` to `.env`.
 2. Set your Jira base URL and authentication values.
-3. Keep read-only mode enabled first.
+3. Keep write tools disabled first.
 4. Run the server from your MCP client.
 
 Minimal example:
@@ -109,9 +110,46 @@ JIRA_BASE_URL=https://jira.example.com
 JIRA_AUTH_MODE=basic
 JIRA_USERNAME=your.username
 JIRA_PASSWORD=your-password
-JIRA_READ_ONLY=true
 JIRA_ENABLE_WRITE_TOOLS=false
 ```
+
+## Local auth proxy
+
+Use `jira-legacy-auth-proxy` when you want the MCP server to talk to localhost while real Jira credentials live only in the proxy process environment. Proxy settings use the `JIRA_PROXY_*` prefix so they follow the package's Jira naming convention without colliding with the MCP server's own `JIRA_*` variables.
+
+Start the proxy:
+
+```env
+JIRA_PROXY_UPSTREAM_BASE_URL=https://jira.example.com
+JIRA_PROXY_AUTH_MODE=basic
+JIRA_PROXY_USERNAME=your.username
+JIRA_PROXY_PASSWORD=your-password
+JIRA_PROXY_LOCAL_TOKEN=local-shared-secret
+JIRA_PROXY_ENABLE_WRITE=false
+```
+
+```bash
+jira-legacy-auth-proxy
+```
+
+Point the MCP server at the local proxy:
+
+```env
+JIRA_BASE_URL=http://127.0.0.1:4877
+JIRA_AUTH_MODE=header
+JIRA_AUTH_HEADER_NAME=x-jira-proxy-token
+JIRA_AUTH_HEADER_VALUE=local-shared-secret
+JIRA_ENABLE_WRITE_TOOLS=false
+```
+
+Proxy behavior:
+
+- binds to `127.0.0.1:4877` by default
+- refuses non-local bind hosts unless `JIRA_PROXY_ALLOW_NON_LOCAL_BIND=true`
+- only proxies Jira Server REST API v2 paths by default
+- keeps write methods blocked unless `JIRA_PROXY_ENABLE_WRITE=true`
+- strips caller `Authorization`, `Cookie`, forwarding, and proxy headers before adding Jira auth
+- supports optional Agile routes with `JIRA_PROXY_ENABLE_AGILE_API=true`
 
 ## MCP client setup
 
@@ -140,16 +178,35 @@ Example client configs live in the repository under [`examples/clients/`](https:
 - `JIRA_MAX_RESPONSE_BYTES=1048576`
 - `JIRA_MAX_ATTACHMENT_BYTES=10485760`
 - `JIRA_ENABLE_WRITE_TOOLS=false`
-- `JIRA_ENABLE_DESTRUCTIVE_TOOLS=false`
 - `JIRA_ALLOWED_PROJECTS`
 - `JIRA_DENIED_PROJECTS`
 - `JIRA_DEFAULT_PROJECT`
 - `JIRA_LOG_LEVEL=info`
 - `JIRA_AUDIT_LOG=false`
 - `JIRA_DRY_RUN=false`
-- `JIRA_READ_ONLY=true`
 - `JIRA_AUTH_HEADER_NAME`
 - `JIRA_AUTH_HEADER_VALUE`
+
+### Local proxy variables
+
+- `JIRA_PROXY_UPSTREAM_BASE_URL`
+- `JIRA_PROXY_AUTH_MODE=basic|bearer|header|none`
+- `JIRA_PROXY_USERNAME`
+- `JIRA_PROXY_PASSWORD` or `JIRA_PROXY_TOKEN`
+- `JIRA_PROXY_AUTH_HEADER_NAME`
+- `JIRA_PROXY_AUTH_HEADER_VALUE`
+- `JIRA_PROXY_HOST=127.0.0.1`
+- `JIRA_PROXY_PORT=4877`
+- `JIRA_PROXY_LOCAL_TOKEN`
+- `JIRA_PROXY_ENABLE_WRITE=false`
+- `JIRA_PROXY_ENABLE_AGILE_API=false`
+- `JIRA_PROXY_MAX_REQUEST_BYTES=1048576`
+- `JIRA_PROXY_MAX_RESPONSE_BYTES=10485760`
+- `JIRA_PROXY_UPSTREAM_TIMEOUT_MS=30000`
+- `JIRA_PROXY_STRICT_SSL=true`
+- `JIRA_PROXY_CA_CERT_PATH`
+- `JIRA_PROXY_LOG_LEVEL=info`
+- `JIRA_PROXY_ALLOW_NON_LOCAL_BIND=false`
 
 ### Authentication modes
 
@@ -173,7 +230,7 @@ JIRA_BASE_URL=https://jira.example.com
 JIRA_AUTH_MODE=basic
 JIRA_USERNAME=your.username
 JIRA_PASSWORD=your-password
-JIRA_READ_ONLY=true
+JIRA_ENABLE_WRITE_TOOLS=false
 ```
 
 ### Cookie auth
@@ -183,7 +240,7 @@ JIRA_BASE_URL=https://jira.example.com
 JIRA_AUTH_MODE=cookie
 JIRA_USERNAME=your.username
 JIRA_PASSWORD=your-password
-JIRA_READ_ONLY=true
+JIRA_ENABLE_WRITE_TOOLS=false
 ```
 
 ### Header auth behind a reverse proxy
@@ -193,7 +250,7 @@ JIRA_BASE_URL=https://jira.example.com
 JIRA_AUTH_MODE=header
 JIRA_AUTH_HEADER_NAME=X-Forwarded-User
 JIRA_AUTH_HEADER_VALUE=service-account
-JIRA_READ_ONLY=true
+JIRA_ENABLE_WRITE_TOOLS=false
 ```
 
 ## MCP configuration
@@ -204,13 +261,13 @@ JIRA_READ_ONLY=true
 {
   "mcpServers": {
     "jira": {
-      "command": "jira-legacy-mcp-server",
+      "command": "jira-legacy-mcp-cli",
       "env": {
         "JIRA_BASE_URL": "https://jira.example.com",
         "JIRA_AUTH_MODE": "basic",
         "JIRA_USERNAME": "your.username",
         "JIRA_PASSWORD": "your-password",
-        "JIRA_READ_ONLY": "true"
+        "JIRA_ENABLE_WRITE_TOOLS": "false"
       }
     }
   }
@@ -230,7 +287,7 @@ JIRA_READ_ONLY=true
         "JIRA_AUTH_MODE": "basic",
         "JIRA_USERNAME": "your.username",
         "JIRA_PASSWORD": "your-password",
-        "JIRA_READ_ONLY": "true"
+        "JIRA_ENABLE_WRITE_TOOLS": "false"
       }
     }
   }
@@ -241,19 +298,19 @@ JIRA_READ_ONLY=true
 
 ```toml
 [mcp_servers.jira]
-command = "jira-legacy-mcp-server"
+command = "jira-legacy-mcp-cli"
 
 [mcp_servers.jira.env]
 JIRA_BASE_URL = "https://jira.example.com"
 JIRA_AUTH_MODE = "basic"
 JIRA_USERNAME = "your.username"
 JIRA_PASSWORD = "your-password"
-JIRA_READ_ONLY = "true"
+JIRA_ENABLE_WRITE_TOOLS = "false"
 ```
 
 ### Claude Desktop
 
-Add the same server block to your Claude Desktop MCP configuration and point `command` to either `jira-legacy-mcp-server` or a local `node dist/index.js`.
+Add the same server block to your Claude Desktop MCP configuration and point `command` to either `jira-legacy-mcp-cli` or a local `node dist/index.js`.
 
 ### Cursor
 
@@ -403,6 +460,7 @@ Project layout:
 - `src/jira/`: Jira client, auth, errors, pagination, types, and endpoints
 - `src/security/`: redaction, audit, guardrails, and limits
 - `src/tools/`: MCP tools grouped by feature area
+- `src/proxy/`: optional local auth proxy, policy, header sanitization, and upstream forwarding
 - `src/server.ts`: MCP server assembly
 - `src/index.ts`: stdio entrypoint
 
@@ -417,7 +475,7 @@ GitHub Actions workflows:
 
 The package is published as `jira-legacy-mcp-cli` and already includes:
 
-- a `bin` entry for `jira-legacy-mcp-server`
+- bin entries for `jira-legacy-mcp-cli` and `jira-legacy-auth-proxy`
 - a package `files` allowlist
 - a `prepack` build step
 - npm trusted publishing metadata

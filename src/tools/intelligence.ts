@@ -52,11 +52,6 @@ function getIssueSummary(issue: JiraIssue): string {
   return (getIssueFields(issue).summary as string | undefined) ?? issue.key ?? "Unknown issue";
 }
 
-function getIssueUpdated(issue: JiraIssue): string | null {
-  const updated = getIssueFields(issue).updated;
-  return typeof updated === "string" ? updated : null;
-}
-
 function isBlockedIssue(issue: JiraIssue): boolean {
   const fields = getIssueFields(issue);
   const statusName = getNestedString(fields, "status")?.toLowerCase() ?? "";

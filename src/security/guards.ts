@@ -51,36 +51,10 @@ export function filterAllowedProjects<T extends { key?: string }>(config: AppCon
 }
 
 export function ensureWriteAllowed(config: AppConfig, operation: string): void {
-  if (config.readOnly) {
-    throw new GuardError("READ_ONLY_MODE", `${operation} is disabled because JIRA_READ_ONLY=true.`);
-  }
-
   if (!config.enableWriteTools) {
     throw new GuardError(
       "WRITE_TOOLS_DISABLED",
       `${operation} is disabled because JIRA_ENABLE_WRITE_TOOLS=false.`,
-    );
-  }
-}
-
-export function ensureDestructiveAllowed(
-  config: AppConfig,
-  operation: string,
-  confirmDestructive?: boolean,
-): void {
-  ensureWriteAllowed(config, operation);
-
-  if (!config.enableDestructiveTools) {
-    throw new GuardError(
-      "DESTRUCTIVE_TOOLS_DISABLED",
-      `${operation} is disabled because JIRA_ENABLE_DESTRUCTIVE_TOOLS=false.`,
-    );
-  }
-
-  if (confirmDestructive !== true) {
-    throw new GuardError(
-      "DESTRUCTIVE_CONFIRMATION_REQUIRED",
-      `${operation} requires confirm_destructive=true.`,
     );
   }
 }

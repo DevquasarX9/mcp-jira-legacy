@@ -11,7 +11,6 @@ describe("loadConfig", () => {
     });
 
     expect(config.baseUrl).toBe("https://jira.example.com");
-    expect(config.readOnly).toBe(true);
     expect(config.enableWriteTools).toBe(false);
     expect(config.allowedProjects).toEqual([]);
   });
