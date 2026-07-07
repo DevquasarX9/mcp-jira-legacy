@@ -9,6 +9,8 @@ import { buildUpstreamHeaders } from "./headers.js";
 import { isLoopbackAddress, normalizeAndValidateRequestTarget } from "./security.js";
 import { forwardUpstream, type UpstreamRequestFn } from "./upstream.js";
 
+const MULTIPART_FORM_DATA_CONTENT_TYPE = /^multipart\/form-data(?:;.*)?$/i;
+
 export interface CreateProxyServerOptions {
   readonly dispatcher?: Dispatcher;
   readonly logger?: Logger;
@@ -27,6 +29,14 @@ export function createProxyServer(
     bodyLimit: config.maxRequestBytes,
     logger: false,
   });
+
+  app.addContentTypeParser(
+    MULTIPART_FORM_DATA_CONTENT_TYPE,
+    { parseAs: "buffer" },
+    (_request, body, done) => {
+      done(null, body);
+    },
+  );
 
   app.setErrorHandler((error, requestContext, reply) => {
     const proxyError = isProxyError(error)

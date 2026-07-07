@@ -72,6 +72,63 @@ describe("proxy server", () => {
     expect(response.json()).toEqual({ version: "7.7.1" });
     expect(upstreamHeaders.authorization).toMatch(/^Basic /);
     expect(upstreamHeaders.cookie).toBeUndefined();
+    expect(upstreamHeaders["x-jira-proxy-token"]).toBeUndefined();
+
+    await app.close();
+  });
+
+  it("forwards multipart attachment uploads as raw buffers", async () => {
+    const multipartBody = Buffer.from(
+      [
+        "--upload-boundary",
+        "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"",
+        "Content-Type: text/plain",
+        "",
+        "hello Jira",
+        "--upload-boundary--",
+        "",
+      ].join("\r\n"),
+      "utf8",
+    );
+    let upstreamBody: string | Buffer | undefined;
+    let upstreamHeaders: Record<string, string> = {};
+
+    const app = createProxyServer(
+      {
+        ...baseConfig,
+        proxyEnableWrite: true,
+      },
+      {
+        logger: new Logger("debug", () => undefined),
+        requestImpl: async (_url, options) => {
+          upstreamBody = options.body;
+          upstreamHeaders = { ...options.headers };
+
+          return buildResponse({
+            statusCode: 200,
+            headers: { "content-type": "application/json" },
+            body: Readable.from([Buffer.from(JSON.stringify([{ id: "10001" }]))]),
+          });
+        },
+      },
+    );
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/rest/api/2/issue/TEST-1/attachments",
+      headers: {
+        "content-type": "multipart/form-data; boundary=upload-boundary",
+        "x-atlassian-token": "no-check",
+        "x-jira-proxy-token": "local-secret",
+      },
+      payload: multipartBody,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(upstreamBody).toEqual(multipartBody);
+    expect(upstreamHeaders["content-type"]).toBe("multipart/form-data; boundary=upload-boundary");
+    expect(upstreamHeaders["x-atlassian-token"]).toBe("no-check");
+    expect(upstreamHeaders["x-jira-proxy-token"]).toBeUndefined();
 
     await app.close();
   });

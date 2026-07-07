@@ -1,5 +1,5 @@
 import type { IncomingHttpHeaders } from "node:http";
-import { buildUpstreamAuthHeaders } from "./auth.js";
+import { buildUpstreamAuthHeaders, LOCAL_PROXY_TOKEN_HEADER } from "./auth.js";
 import type { ProxyConfig } from "./config.js";
 
 const STRIPPED_REQUEST_HEADERS = new Set([
@@ -19,6 +19,7 @@ const STRIPPED_REQUEST_HEADERS = new Set([
   "x-method-override",
   "x-forwarded-host",
   "x-forwarded-proto",
+  LOCAL_PROXY_TOKEN_HEADER,
 ]);
 
 const SAFE_RESPONSE_HEADERS = new Set([
