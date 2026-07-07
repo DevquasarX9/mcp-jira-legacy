@@ -16,7 +16,7 @@ export interface ToolContext {
   readonly logger: Logger;
 }
 
-export const jsonObjectSchema = z.record(z.unknown());
+export const jsonObjectSchema = z.record(z.string(), z.unknown());
 export const projectKeySchema = z.string().trim().regex(/^[A-Za-z][A-Za-z0-9_]+$/);
 export const issueKeySchema = z.string().trim().regex(/^[A-Za-z][A-Za-z0-9_]+-\d+$/);
 export const usernameSchema = z.string().trim().min(1);
