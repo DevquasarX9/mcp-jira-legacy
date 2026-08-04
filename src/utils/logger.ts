@@ -14,7 +14,8 @@ const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
 export class Logger {
   public constructor(
     private readonly level: LogLevel,
-    private readonly sink: LogSink = (line) => process.stderr.write(`${line}\n`),
+    private readonly outputSink: LogSink = (line) => process.stderr.write(`${line}\n`),
+    private readonly errorSink: LogSink = outputSink,
   ) {}
 
   public debug(message: string, context?: JsonRecord): void {
@@ -45,6 +46,7 @@ export class Logger {
       ...(context === undefined ? {} : { context: redactSecrets(context) }),
     };
 
-    this.sink(JSON.stringify(payload));
+    const sink = level === "warn" || level === "error" ? this.errorSink : this.outputSink;
+    sink(JSON.stringify(payload));
   }
 }
