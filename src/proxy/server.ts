@@ -1,11 +1,12 @@
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
 import { Agent, request, type Dispatcher } from "undici";
-import { Logger } from "../utils/logger.js";
+import type { Logger } from "../utils/logger.js";
 import { evaluateRouteAccess } from "./route-policy.js";
 import { validateLocalProxyToken } from "./auth.js";
 import type { ProxyConfig } from "./config.js";
 import { isProxyError, ProxyError } from "./errors.js";
 import { buildUpstreamHeaders } from "./headers.js";
+import { createProxyLogger } from "./logger.js";
 import { isLoopbackAddress, normalizeAndValidateRequestTarget } from "./security.js";
 import { forwardUpstream, type UpstreamRequestFn } from "./upstream.js";
 
@@ -21,7 +22,7 @@ export function createProxyServer(
   config: ProxyConfig,
   options: CreateProxyServerOptions = {},
 ): FastifyInstance {
-  const logger = options.logger ?? new Logger(config.logLevel);
+  const logger = options.logger ?? createProxyLogger(config.logLevel);
   const dispatcher = options.dispatcher ?? buildDispatcher(config);
   const requestImpl = options.requestImpl ?? (request as UpstreamRequestFn);
 
@@ -78,7 +79,7 @@ export function createProxyServer(
 export async function startProxyServer(
   app: FastifyInstance,
   config: ProxyConfig,
-  logger: Logger = new Logger(config.logLevel),
+  logger: Logger = createProxyLogger(config.logLevel),
 ): Promise<void> {
   if (
     config.allowNonLocalBind &&

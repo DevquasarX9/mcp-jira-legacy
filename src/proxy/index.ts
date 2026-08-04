@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 import "dotenv/config";
-import { Logger } from "../utils/logger.js";
 import { loadProxyConfig } from "./config.js";
+import { createProxyLogger } from "./logger.js";
 import { createProxyServer, startProxyServer } from "./server.js";
 
 async function main(): Promise<void> {
   const config = loadProxyConfig();
-  const logger = new Logger(config.logLevel);
+  const logger = createProxyLogger(config.logLevel);
   const app = createProxyServer(config, { logger });
 
   await startProxyServer(app, config, logger);
